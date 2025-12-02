@@ -210,7 +210,7 @@ public class ProblemaP3 {
      * @param focos Lista de tuplas que representan las posiciones de los focos de infección
      * @return Los dos mapas de lineas horizontales y verticales respectivamente de la respuesta optimizada.
      */
-    public LineMapTuple greedyAlgorithm(ArrayList<Tuple> focos){
+    public LineMapTuple greedyAlgorithm(int n, ArrayList<Tuple> focos){
         LineMapTuple initHorizontal = inicioHorizontales(focos);
         LineMapTuple initVertical = inicioVerticales(focos);
 
@@ -222,14 +222,99 @@ public class ProblemaP3 {
             return initVertical;
     }
 
+    /**
+     * Imprime una respuesta de dos mapas de líneas LineMapTuple con el formato esperado
+     * @param respuesta LineMapTuple que es la respuesta del algoritmo ejecutado.
+     */
+    public void imprimirSalida(LineMapTuple respuesta){
+        ArrayList<int[]> horizontalesList = new ArrayList<>();
+
+        // Recorre el mapa horizontal donde llave = posicion Y, valor = lista de tuplas q definen las trayectorias (x1, x2)
+        for (Map.Entry<Integer, ArrayList<Tuple>> entry : respuesta.a.entrySet()) {
+            int y = entry.getKey();
+            ArrayList<Tuple> lista = entry.getValue();
+
+            for (Tuple t : lista) {
+                // Cada línea horizontal va de (x1, y) a (x2, y)
+                horizontalesList.add(new int[]{ t.x, y, t.y, y });
+            }
+        }
+
+        // Imprimir cantidad de líneas horizontales
+        StringBuilder sb = new StringBuilder();
+        sb.append(horizontalesList.size());
+        for (int[] L : horizontalesList) {
+            sb.append(" ").append(L[0]).append(" ").append(L[1]).append(" ")
+            .append(L[2]).append(" ").append(L[3]);
+        }
+        System.out.println(sb.toString());
+
+
+        ArrayList<int[]> verticalesList = new ArrayList<>();
+
+        // Recorre el mapa vertical donde llave = posicion X, valor = lista de tuplas q definen las trayectorias (y1, y2)
+        for (Map.Entry<Integer, ArrayList<Tuple>> entry : respuesta.b.entrySet()) {
+            int x = entry.getKey();
+            ArrayList<Tuple> lista = entry.getValue();
+
+            for (Tuple t : lista) {
+                // Cada línea vertical va de (x, y1) a (x, y2)
+                verticalesList.add(new int[]{ x, t.x, x, t.y });
+            }
+        }
+
+        sb = new StringBuilder();
+        sb.append(verticalesList.size());
+        for (int[] L : verticalesList) {
+            sb.append(" ").append(L[0]).append(" ").append(L[1]).append(" ")
+            .append(L[2]).append(" ").append(L[3]);
+        }
+        System.out.println(sb.toString());
+    }
+
     public static void main(String[] args) throws Exception {
         try {
             BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
             int T = Integer.parseInt(br.readLine().trim());
 
-            
+            while (T-- > 0) {
+                String linea = br.readLine().trim();
+                if (linea.isEmpty()) {
+                    // Por si hay líneas vacías inesperadas
+                    linea = br.readLine().trim();
+                }
+
+                String[] partes = linea.split(" ");
+                int n = Integer.parseInt(partes[0]);
+
+                if (partes.length != 1 + 2 * n) {
+                    throw new IllegalArgumentException(
+                        "Error: n=" + n + " pero se leyeron " + (partes.length - 1) +
+                        " coordenadas. Se esperaban " + (2 * n) + "."
+                    );
+                }
+
+                // Lista de focos (pares x,y)
+                ArrayList<Tuple> focos = new ArrayList<>();
+
+                int idx = 1;
+                for (int i = 0; i < n; i++) {
+                    int x = Integer.parseInt(partes[idx++]);
+                    int y = Integer.parseInt(partes[idx++]);
+                    focos.add(new Tuple(x, y));
+                }
+
+                ProblemaP3 algoritmo = new ProblemaP3();
+
+                // Llamar al algoritmo greedy
+                LineMapTuple res = algoritmo.greedyAlgorithm(n, focos);
+
+                // Imprimir con el formato y todo ya listico
+                algoritmo.imprimirSalida(res);
+            }
 
         } catch (Exception e) {
+            System.out.println(0);
             System.out.println(0);
         }
     }
